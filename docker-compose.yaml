@@ -1,0 +1,34 @@
+version: "3.3"
+services:
+  app:
+    image: node:16
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
+    ports:
+      - ${PORT}:${PORT}
+    network_mode: 'host'
+    working_dir: /app
+    command: sh -c 
+      "yarn &&
+       yarn start:dev"
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql:latest
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - 3306:3306
+    volumes:
+      - mysqldata:/var/lib/mysql
+    entrypoint: "bash -c 'echo -e \"CREATE DATABASE IF NOT EXISTS hackathon;\" > /docker-entrypoint-initdb.d/create_hackathon_db.sql &&
+                          /entrypoint.sh mysqld'"
+
+volumes:
+  mysqldata:
+    driver: local
