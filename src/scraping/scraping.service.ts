@@ -5,8 +5,9 @@ import { firstValueFrom } from 'rxjs';
 import { load } from 'cheerio';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Scraping } from './scraping.entity';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { VkBotService } from 'src/vk-bot/vk-bot.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ScrapingService {
@@ -18,6 +19,7 @@ export class ScrapingService {
     @InjectRepository(Scraping)
     private readonly scrapingRepository: Repository<Scraping>,
     private readonly httpService: HttpService,
+    private readonly userService: UserService,
     @Inject(forwardRef(() => VkBotService))
     private readonly vkBotService: VkBotService,
   ) {}
@@ -29,50 +31,25 @@ export class ScrapingService {
     const day = currentDate.getUTCDate();
     const year = currentDate.getUTCFullYear();
 
-    const currDateProcessed = `${year}/${month}${day}`;
+    const currDateProcessed = +`${day}${month}${year}`;
 
     return await this.scrapingRepository.findOne({
-      where: {
-        group: gropName,
-        date: currDateProcessed,
-      },
-    });
-  }
-
-  async getAllScrapedData() {
-    const currentDate = new Date(Date.now());
-
-    const month = currentDate.getUTCMonth() + 1; //months from 1-12
-    const day = currentDate.getUTCDate();
-    const year = currentDate.getUTCFullYear();
-
-    const currDateProcessed = `${year}/${month}${day}`;
-
-    return await this.scrapingRepository.find({
-      where: {
-        date: currDateProcessed,
-      },
+      where: [
+        {
+          group: gropName,
+          date: MoreThan(currDateProcessed),
+        },
+        {
+          group: gropName,
+          date: currDateProcessed,
+        },
+      ],
     });
   }
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   async parseDataFromWebSiteCron() {
     this.logger.debug('Parsing of web resourse started');
-    const currentDate = new Date(Date.now());
-
-    const month = currentDate.getUTCMonth() + 1; //months from 1-12
-    const day = currentDate.getUTCDate();
-    const year = currentDate.getUTCFullYear();
-
-    const currDateProcessed = `${year}/${month}${day}`;
-
-    const currentParsed = await this.scrapingRepository.find({
-      where: {
-        date: currDateProcessed,
-      },
-    });
-
-    if (currentParsed.length) return;
 
     const rawData = await firstValueFrom(this.httpService.get(this.url));
     const htmlData = rawData.data;
@@ -80,17 +57,40 @@ export class ScrapingService {
     const cheerio = load(htmlData);
 
     const rawText = cheerio('.scrolling-text.pos2').text();
-    const splitedData = rawText
-      .split(
-        '----------------------------------------------------------------------------------------',
-      )
-      .slice(1);
+    const splitedData = rawText.split(
+      '----------------------------------------------------------------------------------------',
+    );
 
-    for (const str of splitedData) {
+    const isNewDataNeeded = splitedData[0].split(' ');
+
+    const newDate = +isNewDataNeeded[3].split('.').join('');
+
+    const temp = await this.scrapingRepository.find({
+      where: {
+        date: newDate,
+        isPrepod: false,
+      },
+    });
+
+    if (temp.length) return;
+
+    const slicedData = splitedData.slice(1);
+
+    for (const str of slicedData) {
       const scrapping = new Scraping();
-      scrapping.date = currDateProcessed;
+      scrapping.date = newDate;
       scrapping.group = str.split(' ')[0].replace('\n', '');
       scrapping.rasp = str;
+      scrapping.isPrepod = false;
+
+      const usersList = await this.userService.findAllByGroup(scrapping.group);
+
+      for (const user of usersList) {
+        this.vkBotService.sendNewRaspToAllSubscribedUsers(
+          user.vkId,
+          scrapping.rasp,
+        );
+      }
 
       await this.scrapingRepository.save(scrapping);
     }

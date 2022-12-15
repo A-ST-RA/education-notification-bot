@@ -10,6 +10,12 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async findAllByGroup(group: string) {
+    return await this.userRepository.find({
+      where: { group: group },
+    });
+  }
+
   async registerNewUser(vkId: number) {
     const existed = await this.userRepository.findOne({
       where: { vkId: vkId },
@@ -21,5 +27,15 @@ export class UserService {
     temp.vkId = vkId;
 
     await this.userRepository.save(temp);
+  }
+
+  async changeGroup(vkId: number, group: string) {
+    const existed = await this.userRepository.findOne({
+      where: { vkId: vkId },
+    });
+
+    existed.group = group;
+
+    await this.userRepository.save(existed);
   }
 }

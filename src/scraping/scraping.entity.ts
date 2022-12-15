@@ -12,5 +12,8 @@ export class Scraping {
   rasp: string;
 
   @Column()
-  date: string;
+  date: number;
+
+  @Column()
+  isPrepod: boolean;
 }
