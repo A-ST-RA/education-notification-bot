@@ -21,9 +21,9 @@ import { UserModule } from './user/user.module';
     }),
     VkModule.forRoot({
       token:
-        'vk1.a.AsFiOZxMvjtTUTMdMS2IeWsZjbNqq_Xz23H0o5qW3pMIAIge9zm39SgwIMM4i09hHv80ZGkOY1MPl_aczTat0R3xCzdaMJreuchK3sn6IvgKSUNlkqdG48Rl6DM1wwvrnOss11DF81kj0fR5_klALru-M63NbQr2hdQhlNmfmC6VaKnVPauHBM7co0zPtRU7rOe3-L8VEnTmGXFKURr47Q',
+        'vk1.a.wsdrhEQHIQgZ2nCcYoEM6lbM209lnc1CaT1xFuZxozneFfW4Tx59KT3QXycOFQTlbjyxCimtbZ-OuIWlrB96tJ3lfw_qipsz-wM5IdLkOdCAnX-8AN7QrWVLLEYCDAeE6tcYNkPxmaXLkpML_Yv4S-Xwdbcm0JbQCCU3I_J196mZjXKWwmky1T_gp002Kjlo8GsvSzM8PkODbv_qa97eKw',
       options: {
-        pollingGroupId: 217766260,
+        pollingGroupId: 189138323,
         apiMode: 'sequential',
       },
       useHearManager: true,
