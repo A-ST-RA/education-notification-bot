@@ -11,7 +11,7 @@ import { UserModule } from './user/user.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'mysql',
       port: 3306,
       username: 'root',
       password: 'toor',
@@ -21,7 +21,7 @@ import { UserModule } from './user/user.module';
     }),
     VkModule.forRoot({
       token:
-        'vk1.a.wsdrhEQHIQgZ2nCcYoEM6lbM209lnc1CaT1xFuZxozneFfW4Tx59KT3QXycOFQTlbjyxCimtbZ-OuIWlrB96tJ3lfw_qipsz-wM5IdLkOdCAnX-8AN7QrWVLLEYCDAeE6tcYNkPxmaXLkpML_Yv4S-Xwdbcm0JbQCCU3I_J196mZjXKWwmky1T_gp002Kjlo8GsvSzM8PkODbv_qa97eKw',
+        'vk1.a.K8YRoYbQk88oBosCwpa_TrmyBfBmZhmLk_wAlGbROx7ia_mJ1iAKU492MNE0TiI_H2-6ML8neSJfLONOsrbpCXCZAUEHO4YCl1B2reW8i9nhSjFqV9WQfazFEVwtERq32uJyP1arASh1tTcwyqPxxNrDuQJ0mm0EIXazfol5mBnIIGt1ELYixRidzIV5FC-V0R-HAJPBf4WEGzhfJ2ak8w',
       options: {
         pollingGroupId: 189138323,
         apiMode: 'sequential',
